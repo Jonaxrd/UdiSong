@@ -42,6 +42,7 @@
             flex-grow: 1;
             background-color: #181818;
             overflow-y: auto;
+            position: relative;
         }
         header {
             padding: 20px;
@@ -49,12 +50,36 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
         }
         header input {
             padding: 10px;
             border: none;
             border-radius: 20px;
             width: 300px;
+            outline: none;
+        }
+        /* Resultados de búsqueda */
+        #searchResults {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background: #282828;
+            border-radius: 10px;
+            width: 300px;
+            max-height: 250px;
+            overflow-y: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            display: none;
+            z-index: 100;
+        }
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+        }
+        .result-item:hover {
+            background: #333;
         }
         .cards {
             display: grid;
@@ -121,10 +146,13 @@
     <div class="main">
         <header>
             <h2>Explorar</h2>
-            <input type="text" placeholder="Buscar canciones, artistas...">
+            <div style="position: relative;">
+                <input type="text" id="searchInput" placeholder="Buscar canciones, artistas...">
+                <div id="searchResults"></div>
+            </div>
         </header>
 
-        <div class="cards">
+        <div class="cards" id="cardsContainer">
             <div class="card">
                 <img src="https://picsum.photos/200?1" alt="Album 1">
                 <h4>Playlist Chill</h4>
@@ -156,5 +184,54 @@
             <button>⏭️</button>
         </div>
     </div>
+
+    <script>
+        const artistas = [
+            "Bad Bunny", "Taylor Swift", "Metallica", "Shakira",
+            "Dua Lipa", "Feid", "The Weeknd", "Adele",
+            "Karol G", "Miley Cyrus", "Arctic Monkeys", "Billie Eilish"
+        ];
+
+        const searchInput = document.getElementById("searchInput");
+        const searchResults = document.getElementById("searchResults");
+
+        searchInput.addEventListener("input", () => {
+            const query = searchInput.value.toLowerCase();
+            searchResults.innerHTML = "";
+
+            if (query.trim() === "") {
+                searchResults.style.display = "none";
+                return;
+            }
+
+            const resultadosFiltrados = artistas.filter(artista =>
+                artista.toLowerCase().includes(query)
+            );
+
+            if (resultadosFiltrados.length === 0) {
+                searchResults.innerHTML = "<div class='result-item'>No se encontraron artistas</div>";
+            } else {
+                resultadosFiltrados.forEach(artista => {
+                    const div = document.createElement("div");
+                    div.classList.add("result-item");
+                    div.textContent = artista;
+                    div.addEventListener("click", () => {
+                        searchInput.value = artista;
+                        searchResults.style.display = "none";
+                    });
+                    searchResults.appendChild(div);
+                });
+            }
+
+            searchResults.style.display = "block";
+        });
+
+        // Ocultar resultados al hacer clic fuera
+        document.addEventListener("click", (e) => {
+            if (!searchResults.contains(e.target) && e.target !== searchInput) {
+                searchResults.style.display = "none";
+            }
+        });
+    </script>
 </body>
 </html>
